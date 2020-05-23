@@ -5,25 +5,32 @@ using UnityEngine;
 public class BlockMove : MonoBehaviour
 {
 
-    [Header("Rotation")]
+    [Header("Rotation Discrete")]
     [SerializeField] float rotationStep = 90f;
     [SerializeField] float secondsOfStep = 2f;
     [SerializeField] float offsetInSeconds = 0f;
-    [SerializeField] public bool doRotation = true;
+    [SerializeField] public bool doRotation = false;
 
-    [Header("Translation")]
-    [SerializeField] float translationOffset = 4f;
-    [SerializeField] float translationVelocity = 0.5f;
-    [SerializeField] public bool doTranslation = false;
+    [Header("Translation Horizontal")]
+    [SerializeField] float translationOffsetH = 2f;
+    [SerializeField] float translationVelocityH = 2f;
+    [SerializeField] public bool doTranslationH = false;
+
+    [Header("Translation Vertical")]
+    [SerializeField] float translationOffsetV = 2f;
+    [SerializeField] float translationVelocityV = 2f;
+    [SerializeField] public bool doTranslationV = false;
 
 
-    private Vector2 startingPosition;
-    private int signTranslation = 1;
+    private Vector2 startingLocalPosition;
+    private int signTranslationH = 1;
+    private int signTranslationV = 1;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        startingPosition = transform.position;
+        startingLocalPosition = transform.localPosition;
         StartCoroutine(RotateStep());
         
     }
@@ -37,21 +44,30 @@ public class BlockMove : MonoBehaviour
 
     IEnumerator RotateStep(){
         while(doRotation){
-            transform.eulerAngles = new Vector3(transform.eulerAngles.x,transform.eulerAngles.y,transform.eulerAngles.z + rotationStep);
+            transform.localEulerAngles = new Vector3(transform.localEulerAngles.x,transform.localEulerAngles.y,transform.localEulerAngles.z + rotationStep);
             yield return new WaitForSeconds(secondsOfStep);
         }
     }
     void Translate(){
-        if(doTranslation){
-            if(Mathf.Abs(startingPosition.x - transform.position.x) > translationOffset){
-                signTranslation = -signTranslation;
+        if(doTranslationH){
+            if(Mathf.Abs(startingLocalPosition.x - transform.localPosition.x) > translationOffsetH){
+                signTranslationH = -signTranslationH;
             }
-            transform.position = new Vector2(transform.position.x + translationVelocity * Time.deltaTime * signTranslation, transform.position.y);
+            transform.localPosition = new Vector2(transform.localPosition.x + translationVelocityH * Time.deltaTime * signTranslationH, transform.localPosition.y);
+        }
+
+        if(doTranslationV){
+            if(Mathf.Abs(startingLocalPosition.y - transform.localPosition.y) > translationOffsetV){
+                signTranslationV = -signTranslationV;
+            }
+            
+            transform.localPosition = new Vector2(transform.localPosition.x, translationVelocityV * Time.deltaTime * signTranslationV + transform.localPosition.y);
         }
     }
 
     public void DisalbeAlleMovement(){
         doRotation = false;
-        doTranslation = false;
+        doTranslationH = false;
+        doTranslationV = false;
     }
 }
